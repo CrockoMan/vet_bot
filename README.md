@@ -39,5 +39,6 @@ BOT_TOKEN=Токен_бота_telegram</br>
 ```
 python main.py
 ```
+![image](https://github.com/CrockoMan/vet_bot/assets/125302139/88b18fb0-afb9-466d-93dc-ae57f64737c8)
 
  Автор: [К.Гурашкин](<https://github.com/CrockoMan>)
