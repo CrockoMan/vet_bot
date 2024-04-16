@@ -20,9 +20,9 @@ router = Router(name=__name__)
 dp.include_router(router)
 
 
-def get_rasp_str():
+async def get_rasp_str():
     ret_arr = []
-    schedule = read_schedule()
+    schedule = await read_schedule()
     for dat in schedule.items():
         ret_str = ''
         ret_str += f'{markdown.hbold(dat[0])}\n'
@@ -39,13 +39,14 @@ async def handle_message_bye(message: types.Message):
         chat_id=message.chat.id,
         action=ChatAction.TYPING,
     )
-    rasp = get_rasp_str()
+    print(f'Запрос расписания {message.from_user.id} {message.from_user.full_name}')
+    rasp = await get_rasp_str()
     if len(rasp) > 0:
         for one_day_rasp in rasp:
             await message.answer(text=f'{one_day_rasp}')
     else:
-        await message.answer(text=f'Ошибка загрузки расписания, попробуйте '
-                                  f'позже')
+        await message.answer(text='Ошибка загрузки расписания, попробуйте '
+                                  'позже')
 
 
 @router.message(F.text == ButtonText.COOL_PHOTO)
@@ -55,13 +56,14 @@ async def handle_send_photo(message: types.Message, bot: Bot):
         chat_id=message.chat.id,
         action=ChatAction.UPLOAD_PHOTO,
     )
+    print(f'Запрос фото {message.from_user.id} {message.from_user.full_name}')
     async with action_sender:
-        url = get_random_picture()
+        url = await get_random_picture()
         if url:
             await bot.send_photo(chat_id=message.chat.id, photo=url)
         else:
             await message.answer(
-                text=f'Ошибка загрузки картинки, попробуйте позже'
+                text='Ошибка загрузки картинки, попробуйте позже'
             )
 
 
@@ -85,6 +87,7 @@ async def handle_start(message: types.Message):
                          f'id={markdown.hbold(message.from_user.id)}')
     await message.answer(text=text,
                          reply_markup=get_on_start_kb())
+
 
 async def set_commands(bot: Bot):
     commands = [

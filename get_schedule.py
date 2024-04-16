@@ -1,6 +1,6 @@
 import random
 
-import requests
+import aiohttp
 from bs4 import BeautifulSoup
 from requests import RequestException
 
@@ -51,7 +51,7 @@ def get_time(soup):
 def get_discipline(soup):
     disciplines = soup.find_all('td', {'class': 'diss'})
     ret_val = []
-    lesson=[]
+    lesson = []
     if disciplines:
         for diss in disciplines:
             lesson_arr = diss.text.strip().split('\r\n')
@@ -60,16 +60,14 @@ def get_discipline(soup):
                     lesson.append(les_str.strip())
             if lesson:
                 ret_val.append(' '.join(lesson))
-                # ret_val.append(lesson)
         return ' '.join(ret_val)
-        # return ret_val
     return None
 
 
 def get_auditory(soup):
     auditories = soup.find_all('td', {'class': 'who-where'})
     ret_val = []
-    places=[]
+    places = []
     if auditories:
         for auditory in auditories:
             room_arr = auditory.text.strip().split('\n')
@@ -78,20 +76,28 @@ def get_auditory(soup):
                     places.append(room.strip())
             if places:
                 ret_val.append(' '.join(places))
-                # ret_val.append(places)
         return ' '.join(ret_val)
-        # return ret_val
     return None
 
 
-def get_random_picture():
-    # downloads_url = 'https://kartinki.pics/81766-veterinarnye-kartinki.html'
-    response = requests.get(PICTURES_URL)
+async def async_http_get(url):
+    print(url)
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                response = await resp.read()
+        return response.decode('utf-8')
+    except Exception as e:
+        return None
+
+
+async def get_random_picture():
+    response = await async_http_get(PICTURES_URL)
 
     if response is None:
         return None
 
-    soup = BeautifulSoup(response.text, features='lxml')
+    soup = BeautifulSoup(response, features='lxml')
     card_blocks = soup.find_all('div', {'class': 'fotocontext'})
     rand_card_block = card_blocks[random.randint(0, len(card_blocks) - 1)]
     picture = rand_card_block.find('a')['href']
@@ -99,22 +105,20 @@ def get_random_picture():
     return picture
 
 
-def read_schedule(group='ВМ2233'):
-    downloads_url = f'{SCHEDULE_URL}{group}'
-    # downloads_url = f'https://s.kubsau.ru/?type_schedule=1&val={group}'
-    response = requests.get(downloads_url)
+async def read_schedule(group='ВМ2233'):
+
+    response = await async_http_get(f'{SCHEDULE_URL}{group}')
 
     if response is None:
         return {}
 
-    soup = BeautifulSoup(response.text, features='lxml')
+    soup = BeautifulSoup(response, features='lxml')
     card_blocks = soup.find_all('div', {'class': 'card-block'})[:3]
     schedule = {}
     for card_block in card_blocks:
         table = card_block.find('table', {'class': 'table'})
         tr = table.find_all('tr')
         date = get_date(card_block)
-        # print(date)
         rasp_list = []
         for rasp in tr:
             time = get_time(rasp)
