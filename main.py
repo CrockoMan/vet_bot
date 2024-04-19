@@ -10,9 +10,22 @@ from aiogram.types import (BotCommand, BotCommandScopeDefault, KeyboardButton,
 from aiogram.utils import markdown
 from aiogram import F
 from aiogram.utils.chat_action import ChatActionSender
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-from config import ButtonText
+from config import ButtonText, DB_PATH
+from db import Base
 from get_schedule import get_random_picture, read_schedule
+
+
+load_dotenv()
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+print(BOT_TOKEN)
+
+engine = create_engine(DB_PATH)
+Base.metadata.create_all(engine)
+session = Session(engine)
 
 dp = Dispatcher()
 
@@ -100,8 +113,6 @@ async def set_commands(bot: Bot):
 
 
 async def main():
-    BOT_TOKEN = os.getenv('BOT_TOKEN')
-    print(BOT_TOKEN)
     bot = Bot(
         token=BOT_TOKEN,
         parse_mode=ParseMode.HTML
