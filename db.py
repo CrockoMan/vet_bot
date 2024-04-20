@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, select, update
 from sqlalchemy.orm import declarative_base, declared_attr
 
+from config import DEFAULT_GROUP
+
 
 class Base:
 
@@ -53,4 +55,4 @@ def get_group(telegram_id):
     ).first()
     if result:
         return result.group_name
-    return 'ВМ2233'
+    return DEFAULT_GROUP

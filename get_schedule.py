@@ -4,7 +4,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from requests import RequestException
 
-from config import PICTURES_URL, SCHEDULE_URL
+from config import DEFAULT_GROUP, PICTURES_URL, SCHEDULE_URL
 
 
 class ParserFindTagException(Exception):
@@ -105,7 +105,7 @@ async def get_random_picture():
     return picture
 
 
-async def read_schedule(group='ВМ2233'):
+async def read_schedule(group=DEFAULT_GROUP):
 
     response = await async_http_get(f'{SCHEDULE_URL}{group}')
 

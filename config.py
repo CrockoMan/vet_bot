@@ -10,3 +10,5 @@ class ButtonText:
     COOL_PHOTO = 'Улётная картинка'
     SET_GROUP = 'Номер группы'
     BYE = 'Bye bye!'
+
+DEFAULT_GROUP = 'ВМ2233'
