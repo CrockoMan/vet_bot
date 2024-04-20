@@ -23,10 +23,8 @@ load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 print(BOT_TOKEN)
 
-# engine = create_engine(DB_PATH, echo=False)
 DB.engine = create_engine(DB_PATH, echo=False)
 Base.metadata.create_all(DB.engine)
-# session = Session(engine)
 DB.session = Session(DB.engine)
 
 dp = Dispatcher()
@@ -99,9 +97,10 @@ def get_on_start_kb():
 @router.message(CommandStart())
 async def handle_start(message: types.Message):
     url = 'https://kubsau.ru/local/templates/kit/img/logo.svg'
-    text = markdown.text(f'{markdown.hide_link(url)}👋 Привет, '
-                         f'{markdown.hbold(message.from_user.full_name)}!\n',
-                         f'Твоя группа {markdown.hbold(get_group(message.from_user.id))}\n')
+    text = markdown.text(
+        f'{markdown.hide_link(url)}👋 Привет, '
+        f'{markdown.hbold(message.from_user.full_name)}!\n',
+        f'Твоя группа {markdown.hbold(get_group(message.from_user.id))}\n')
     await message.answer(text=text,
                          reply_markup=get_on_start_kb())
 

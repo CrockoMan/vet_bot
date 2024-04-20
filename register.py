@@ -7,7 +7,7 @@ from aiogram.types import Message
 from aiogram.utils import markdown
 
 from config import ButtonText, DEFAULT_GROUP
-from db import DB, UserGroup, get_group, save_group
+from db import save_group
 
 register_router = Router(name=__name__)
 
