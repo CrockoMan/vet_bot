@@ -8,4 +8,5 @@ DB_PATH = 'sqlite:///sqlite.db'
 class ButtonText:
     SCHEDULE = 'Расписание'
     COOL_PHOTO = 'Улётная картинка'
+    SET_GROUP = 'Номер группы'
     BYE = 'Bye bye!'

@@ -15,27 +15,30 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from config import ButtonText, DB_PATH
-from db import Base
+from db import Base, DB, get_group
 from get_schedule import get_random_picture, read_schedule
-
+from register import register_router
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 print(BOT_TOKEN)
 
-engine = create_engine(DB_PATH)
-Base.metadata.create_all(engine)
-session = Session(engine)
+# engine = create_engine(DB_PATH, echo=False)
+DB.engine = create_engine(DB_PATH, echo=False)
+Base.metadata.create_all(DB.engine)
+# session = Session(engine)
+DB.session = Session(DB.engine)
 
 dp = Dispatcher()
 
 router = Router(name=__name__)
 dp.include_router(router)
+dp.include_router(register_router)
 
 
-async def get_rasp_str():
+async def get_rasp_str(group_name):
     ret_arr = []
-    schedule = await read_schedule()
+    schedule = await read_schedule(group_name)
     for dat in schedule.items():
         ret_str = ''
         ret_str += f'{markdown.hbold(dat[0])}\n'
@@ -53,7 +56,7 @@ async def handle_message_bye(message: types.Message):
         action=ChatAction.TYPING,
     )
     print(f'Запрос расписания {message.from_user.id} {message.from_user.full_name}')
-    rasp = await get_rasp_str()
+    rasp = await get_rasp_str(get_group(message.from_user.id))
     if len(rasp) > 0:
         for one_day_rasp in rasp:
             await message.answer(text=f'{one_day_rasp}')
@@ -82,8 +85,9 @@ async def handle_send_photo(message: types.Message, bot: Bot):
 
 def get_on_start_kb():
     button_rasp = KeyboardButton(text=ButtonText.SCHEDULE)
+    button_set_group = KeyboardButton(text=ButtonText.SET_GROUP)
     button_photo = KeyboardButton(text=ButtonText.COOL_PHOTO)
-    first_row = [button_rasp]
+    first_row = [button_rasp, button_set_group]
     second_row = [button_photo]
     button_rows = [first_row, second_row]
     markup_keyboard = ReplyKeyboardMarkup(keyboard=button_rows,
@@ -95,9 +99,9 @@ def get_on_start_kb():
 @router.message(CommandStart())
 async def handle_start(message: types.Message):
     url = 'https://kubsau.ru/local/templates/kit/img/logo.svg'
-    text = markdown.text(f'{markdown.hide_link(url)}Привет '
-                         f'{markdown.hbold(message.from_user.full_name)}\n',
-                         f'id={markdown.hbold(message.from_user.id)}')
+    text = markdown.text(f'{markdown.hide_link(url)}👋 Привет, '
+                         f'{markdown.hbold(message.from_user.full_name)}!\n',
+                         f'Твоя группа {markdown.hbold(get_group(message.from_user.id))}\n')
     await message.answer(text=text,
                          reply_markup=get_on_start_kb())
 
