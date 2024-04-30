@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  vet_bot:
+    image: crocko/vm_bot
+    restart: always
+    env_file: .env
