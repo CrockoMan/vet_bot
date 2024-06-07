@@ -138,12 +138,6 @@ def parser():
         for lesson in dat[1]:
             print(' '.join(lesson))
 
-    # pdf_a4_tag = find_tag(table_tag,
-    #                       'a',
-    #                       {'href': re.compile(r'.+pdf-a4\.zip$')}
-    #                       )
-
-
 
 if __name__ == '__main__':
     # parser()
